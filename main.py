@@ -6,23 +6,24 @@ import pandas as pd
 import datetime
 
 class PDF(FPDF):
+     # Cabecera del documento PDF
     def header(self):
         self.set_font('Arial', 'B', 12)
         self.cell(0, 10, 'Tabla de Datos', 0, 1, 'C')
-
+# Pie de página del documento PDF
     def footer(self):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
         self.cell(0, 10, f'Página {self.page_no()}', 0, 0, 'C')
 
-
+# Clase principal para la interfaz de usuario (UI) con Flet
 class FormUi(ft.UserControl):
     def __init__(self, page):
         super().__init__(expand=True)
         self.page = page 
         self.data = ContactManager()
         self.selected_row = None
-
+ # Definición de los campos de entrada para los datos
         self.name = ft.TextField(label="Nombre", border_color= "cyan")
         self.age = ft.TextField(label="Edad", border_color= "cyan", 
                                 input_filter=ft.NumbersOnlyInputFilter(),
@@ -31,7 +32,7 @@ class FormUi(ft.UserControl):
         self.phone = ft.TextField(label="Telefono", border_color= "cyan",
                                   input_filter=ft.NumbersOnlyInputFilter(),
                                   max_length=8)
-        
+        # Campo de búsqueda para filtrar por nombre
         self.searh_field = ft.TextField(                        
                             suffix_icon = ft.icons.SEARCH,
                             label= "Buscar por nombre",
@@ -40,7 +41,7 @@ class FormUi(ft.UserControl):
                             label_style = ft.TextStyle(color= "white"),
                             on_change = self.searh_data,
                         )     
-      
+      # Definición de la tabla que muestra los contactos
         self.data_table =  ft.DataTable(
                             expand= True,
                             border=ft.border.all(4, "cyan"),
@@ -55,10 +56,10 @@ class FormUi(ft.UserControl):
                             ],
                         )        
         
-       
+       # Mostrar los contactos al inicio
         self.show_data()
 
-
+# Formulario de entrada de datos con los botones de acción
         self.form = ft.Container(
             bgcolor="#333333",
             border_radius=10,
@@ -150,13 +151,14 @@ class FormUi(ft.UserControl):
                 ]
             )
         )
+        # Contenedor general que organiza el formulario y la tabla
         self.conent = ft.ResponsiveRow(
             controls=[
                 self.form,
                 self.table
             ]
         )
-    
+     # Muestra todos los datos en la tabla
     def show_data(self):
         self.data_table.rows = []
         for x in self.data.get_contacts():
@@ -172,7 +174,7 @@ class FormUi(ft.UserControl):
                 )
             )
         self.update()
-
+  # Agrega un nuevo contacto
     def  add_data(self, e):
         name = self.name.value
         age = str(self.age.value)
@@ -193,7 +195,7 @@ class FormUi(ft.UserControl):
             else:
                 print("El contacto ya existe.")
         print("Escriba tus datos")
-
+# Obtiene el índice del contacto seleccionado en la tabla
     def get_index(self, e):
         if e.control.selected:
            e.control.selected = False
@@ -205,7 +207,7 @@ class FormUi(ft.UserControl):
                 self.selected_row = row
                 break
         self.update()
-
+# Permite editar un campo de contacto
     def edit_flied_text(self, e):
         try: 
             self.name.value = self.selected_row[1]
@@ -215,7 +217,7 @@ class FormUi(ft.UserControl):
             self.update()
         except TypeError:
             print("Error")
-
+# Actualiza un contacto
     def update_data(self,e):
         name = self.name.value
         age = str(self.age.value)
@@ -226,7 +228,7 @@ class FormUi(ft.UserControl):
             self.clean_fields()
             self.data.update_contact(self.selected_row[0], name, age, email, phone)
             self.show_data()
-
+ # Borra un contacto
     def delete_data(self, e):
         self.data.delete_contact(self.selected_row[1])
         self.show_data()
